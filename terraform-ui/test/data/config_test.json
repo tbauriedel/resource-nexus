@@ -1,0 +1,9 @@
+{
+  "logging": {
+    "type": "stdout",
+    "file": "terraform-ui.log",
+    "level": "info"
+  },
+  "database": {},
+  "listener": {}
+}
