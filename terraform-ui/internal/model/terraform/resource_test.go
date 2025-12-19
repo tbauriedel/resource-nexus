@@ -1,4 +1,4 @@
-package resource
+package model
 
 import (
 	"encoding/json"
@@ -8,9 +8,7 @@ import (
 	"testing"
 )
 
-func TestHasOptions(t *testing.T) {
-	r := Resource{}
-
+func (r *Resource) TestHasOptions(t *testing.T) {
 	r.Options = []byte("{'foo':'bar}")
 	if !r.HasOptions() {
 		t.Fatal("options should be set")
@@ -22,9 +20,7 @@ func TestHasOptions(t *testing.T) {
 	}
 }
 
-func TestValidateOptionsSyntax(t *testing.T) {
-	r := Resource{}
-
+func (r *Resource) TestValidateOptionsSyntax(t *testing.T) {
 	// Test valid options
 	r.Options = []byte("{'foo':'bar}")
 
@@ -39,8 +35,8 @@ func TestValidateOptionsSyntax(t *testing.T) {
 	}
 }
 
-func TestGetResourceConfig(t *testing.T) {
-	r := Resource{
+func (r *Resource) TestGetResourceConfig(t *testing.T) {
+	r = &Resource{
 		ResourceType: "aws_instance",
 		Name:         "test",
 	}
@@ -62,7 +58,7 @@ func TestGetResourceConfig(t *testing.T) {
 	}
 }
 
-func TestWriteToFile(t *testing.T) {
+func (r *Resource) TestWriteToFile(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("../../../test/testdata", "tmp")
 	if err != nil {
 		t.Fatal(err)
@@ -70,7 +66,7 @@ func TestWriteToFile(t *testing.T) {
 
 	defer os.RemoveAll(tmpDir)
 
-	r := Resource{
+	r = &Resource{
 		ResourceType: "aws_instance",
 		Name:         "test",
 	}

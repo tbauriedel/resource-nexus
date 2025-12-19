@@ -7,9 +7,7 @@ import (
 	"testing"
 )
 
-func TestHasOptions(t *testing.T) {
-	p := Provider{}
-
+func (p *Provider) TestHasOptions(t *testing.T) {
 	// Test non-empty options
 	p.Options = []byte("{'hello':'world'}")
 	if !p.HasOptions() {
@@ -23,9 +21,7 @@ func TestHasOptions(t *testing.T) {
 	}
 }
 
-func TestValidateOptionsSyntax(t *testing.T) {
-	p := Provider{}
-
+func (p *Provider) TestValidateOptionsSyntax(t *testing.T) {
 	// Test valid options
 	p.Options = []byte(`{"hello":"world"}`)
 
@@ -40,8 +36,8 @@ func TestValidateOptionsSyntax(t *testing.T) {
 	}
 }
 
-func TestGetProviderConfig(t *testing.T) {
-	p := Provider{
+func (p *Provider) TestGetProviderConfig(t *testing.T) {
+	p = &Provider{
 		RequiredTerraformVersion: ">= 0.1.0",
 		ProviderName:             "aws",
 		Source:                   "hashicorp/aws",
@@ -66,7 +62,7 @@ func TestGetProviderConfig(t *testing.T) {
 	}
 }
 
-func TestWriteToFile(t *testing.T) {
+func (p *Provider) TestWriteToFile(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("../../../test/testdata", "tmp")
 	if err != nil {
 		t.Fatal(err)
@@ -74,7 +70,7 @@ func TestWriteToFile(t *testing.T) {
 
 	defer os.RemoveAll(tmpDir)
 
-	p := Provider{
+	p = &Provider{
 		RequiredTerraformVersion: ">= 0.1.0",
 		ProviderName:             "aws",
 		Source:                   "hashicorp/aws",
