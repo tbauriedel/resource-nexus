@@ -2,6 +2,7 @@ package model
 
 import (
 	"encoding/json"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -58,6 +59,44 @@ func TestGetProviderConfig(t *testing.T) {
 	var actual, expected interface{}
 
 	json.Unmarshal([]byte(config), &actual)
+	json.Unmarshal([]byte(validConfig), &expected)
+
+	if !reflect.DeepEqual(actual, expected) {
+		t.Fatal("configs do not match")
+	}
+}
+
+func TestWriteToFile(t *testing.T) {
+	tmpDir, err := os.MkdirTemp("../../../test/testdata", "tmp")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	defer os.RemoveAll(tmpDir)
+
+	p := Provider{
+		RequiredTerraformVersion: ">= 0.1.0",
+		ProviderName:             "aws",
+		Source:                   "hashicorp/aws",
+		Version:                  "3.28.0",
+		Options:                  []byte(`{"region":"eu-central-1"}`),
+	}
+
+	err = p.WriteToFile(tmpDir)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	content, err := os.ReadFile(tmpDir + "/provider.tf.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	validConfig := `{"provider":{"aws":{"region":"eu-central-1"}},"terraform":{"required_providers":{"aws":{"source":"hashicorp/aws","version":"3.28.0"}},"required_version":">= 0.1.0"}}`
+
+	var actual, expected interface{}
+
+	json.Unmarshal(content, &actual)
 	json.Unmarshal([]byte(validConfig), &expected)
 
 	if !reflect.DeepEqual(actual, expected) {

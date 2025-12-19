@@ -4,17 +4,20 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"path/filepath"
+
+	"github.com/tbauriedel/terraform-ui/internal/utils/fileutils"
 )
 
 // Provider represents a Terraform provider
 //
 // Options are custom options for the provider as JSON
 type Provider struct {
-	RequiredTerraformVersion string // "v1.1.0"
-	ProviderName             string // "proxmox"
-	Source                   string // "Telmate/proxmox"
-	Version                  string // "3.0.2-rc06"
-	Options                  []byte // JSON content. Needs to be validated!
+	RequiredTerraformVersion string `json:"required_version"` // "v1.1.0"
+	ProviderName             string `json:"provider-name"`    // "proxmox"
+	Source                   string `json:"source"`           // "Telmate/proxmox"
+	Version                  string `json:"version"`          // "3.0.2-rc06"
+	Options                  []byte `json:"options"`          // Provider settings. JSON content
 }
 
 // HasOptions checks if the provider has options
@@ -34,7 +37,7 @@ func (p *Provider) ValidateOptions() error {
 	var js json.RawMessage
 	err := json.Unmarshal(p.Options, &js)
 	if err != nil {
-		return errors.New(fmt.Sprint("options are non valid json", "err", err))
+		return errors.New(fmt.Sprint("options are non valid json", "error", err))
 	}
 
 	return nil
@@ -68,8 +71,32 @@ func (p *Provider) GetProviderConfig() (string, error) {
 	// Marshal result to JSON
 	data, err := json.Marshal(result)
 	if err != nil {
-		return "", errors.New(fmt.Sprint("failed to marshal provider config", "err", err))
+		return "", errors.New(fmt.Sprint("failed to marshal provider config", "error", err))
 	}
 
 	return string(data), nil
+}
+
+// WriteToFile writes the Terraform provider configuration to a file.
+// workdir is the terraform working directory for the resource that will be managed
+func (p *Provider) WriteToFile(workdir string) error {
+	filename := filepath.Join(workdir, "provider.tf.json")
+
+	f, err := fileutils.OpenFile(filename)
+	if err != nil {
+		return errors.New(fmt.Sprint("cant write provider file", "error", err))
+	}
+	defer f.Close()
+
+	conf, err := p.GetProviderConfig()
+	if err != nil {
+		return errors.New(fmt.Sprint("cant write provider file", "error", err))
+	}
+
+	_, err = f.Write([]byte(conf))
+	if err != nil {
+		return errors.New(fmt.Sprint("cant write provider file", "error", err))
+	}
+
+	return nil
 }

@@ -20,7 +20,7 @@ var (
 )
 
 func init() {
-	// Set locale to C, to avoid translations in command output
+	// Set locale to C to avoid translations in command output
 	_ = os.Setenv("LANG", "C")
 
 	// Set slog defaults
@@ -32,7 +32,7 @@ func init() {
 
 	flag.Parse()
 
-	// Load config
+	// Load server config
 	if !fileutils.FileExists(configPath) {
 		slog.Info("no config file found. loading defaults")
 		conf = config.LoadDefaults()
@@ -65,6 +65,7 @@ func main() {
 		logger = logging.NewLoggerStdout(conf.Logging)
 	}
 
+	// Get redacted config for initial log output
 	redacted, err := json.Marshal(conf.GetConfigRedacted())
 	if err != nil {
 		logger.Error(fmt.Sprintf("failed to marshal config: %s", err.Error()))
