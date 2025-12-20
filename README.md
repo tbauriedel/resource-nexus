@@ -1,8 +1,25 @@
-# Terraform UI
+s# terraform-ui
+
+> `terraform-ui` is under development. A first release candidate will be released "soon".
 
 Graphical user interface fo Terraform without, without dealing directly with Terraform or the underlying infrastructure.
 
 More details can be found in the [idea description](./IDEA.md).
+
+## Components
+
+terraform-ui consists of two components.
+
+### terraform-ui
+
+**terraform-ui** is the backbone of the whole stack.  
+Triggered via REST API, terraform-ui executes terraform commands to provision infrastructure.
+
+Source code and detailed documentation is located under [terraform-ui](./terraform-ui/)
+
+### terraform-ui-web
+
+Not developed yet.
 
 # Development
 
