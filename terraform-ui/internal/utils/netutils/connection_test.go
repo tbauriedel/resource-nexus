@@ -2,6 +2,7 @@ package netutils
 
 import (
 	"crypto/tls"
+	"fmt"
 	"io"
 	"net"
 	"testing"
@@ -10,7 +11,7 @@ import (
 
 func TestTestTcp(t *testing.T) {
 	// build listener
-	l, err := net.Listen("tcp", "localhost:4890")
+	l, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -22,8 +23,10 @@ func TestTestTcp(t *testing.T) {
 	// wait a bit for the listener to start
 	time.Sleep(500 * time.Millisecond)
 
+	addr := l.Addr().String()
+
 	// test successful connection
-	ok, err := testTcp("localhost:4890", 1*time.Second)
+	ok, err := testTcp(addr, 1*time.Second)
 	if ok != true || err != nil {
 		t.Fatal(err)
 	}
@@ -45,7 +48,7 @@ func TestTestTcpTls(t *testing.T) {
 	config := &tls.Config{Certificates: []tls.Certificate{cer}}
 
 	// build tls listener
-	l, err := tls.Listen("tcp", "localhost:4891", config)
+	l, err := tls.Listen("tcp", "localhost:0", config)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,24 +70,34 @@ func TestTestTcpTls(t *testing.T) {
 	// wait a bit for the listener to start
 	time.Sleep(500 * time.Millisecond)
 
+	addr := l.Addr().String()
+
 	// test successful tcp connection
-	ok, err := testTcpTls("localhost:4891", 3*time.Second)
+	ok, err := testTcpTls(addr, 3*time.Second)
 	if !ok || err != nil {
 		t.Fatal(err)
 	}
 
+	tcpAddr := l.Addr().(*net.TCPAddr)
+	port := tcpAddr.Port
+
 	// test failed tcp connection
-	ok, err = testTcpTls("localhost:4891", 3*time.Second)
+	ok, err = testTcpTls(fmt.Sprintf("localhost:%s", string(rune(port+1))), 3*time.Second)
+	if ok || err == nil {
+		t.Fatal(err)
+	}
 }
 
 func TestWaitForConnection(t *testing.T) {
-	l, err := net.Listen("tcp", "localhost:4891")
+	l, err := net.Listen("tcp", "localhost:0")
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer l.Close()
 
-	err = WaitForConnection("localhost:4891", 1*time.Second)
+	addr := l.Addr().String()
+
+	err = WaitForConnection(addr, 1*time.Second)
 	if err != nil {
 		t.Fatal(err)
 	}

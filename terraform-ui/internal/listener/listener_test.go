@@ -20,7 +20,7 @@ func TestNewListener(t *testing.T) {
 
 func getListener(ctx context.Context) Listener {
 	c := config.Listener{
-		ListenAddr:  ":4890",
+		ListenAddr:  ":0",
 		ReadTimeout: 10 * time.Second,
 		IdleTimeout: 120 * time.Second,
 	}
