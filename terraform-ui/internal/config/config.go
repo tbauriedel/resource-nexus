@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 )
 
 type Config struct {
@@ -12,7 +13,15 @@ type Config struct {
 	Listener Listener `json:"listener"`
 }
 
-type Listener struct{}
+type Listener struct {
+	ListenAddr    string        `json:"listen_addr"`
+	ReadTimeout   time.Duration `json:"read_timeout"`
+	IdleTimeout   time.Duration `json:"idle_timeout"`
+	TlsEnabled    bool          `json:"tls_enabled"`
+	TlsSkipVerify bool          `json:"tls_skip_verify"`
+	TlsCertPath   string        `json:"tls_cert_file"`
+	TlsKeyPath    string        `json:"tls_key_file"`
+}
 
 type Logger struct {
 	Type  string `json:"type"`
@@ -43,7 +52,12 @@ func LoadDefaults() Config {
 			Level: "info",
 		},
 		Database: Database{},
-		Listener: Listener{},
+		Listener: Listener{
+			ListenAddr:    ":4890",
+			ReadTimeout:   10 * time.Second,
+			IdleTimeout:   120 * time.Second,
+			TlsSkipVerify: false,
+		},
 	}
 }
 

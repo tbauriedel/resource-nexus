@@ -1,0 +1,15 @@
+{
+  "logging": {
+    "type": "file",
+    "file": "terraform-ui.log",
+    "level": "debug"
+  },
+  "database": {},
+  "listener": {
+    "listen_addr": ":4890",
+    "tls_enabled": true,
+    "tls_cert_file": "test/testdata/config/dummy-cert.pem",
+    "tls_key_file": "test/testdata/config/dummy-key.pem",
+    "tls_skip_verify": false
+  }
+}

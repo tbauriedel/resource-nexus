@@ -2,7 +2,6 @@ package model
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"path/filepath"
 
@@ -32,7 +31,7 @@ func (r *Resource) ValidateOptionsSyntax() error {
 	var js json.RawMessage
 	err := json.Unmarshal(r.Options, &js)
 	if err != nil {
-		return errors.New(fmt.Sprint("options are non valid json", "error", err))
+		return fmt.Errorf("options are non valid json: %w", err)
 	}
 
 	return nil
@@ -60,7 +59,7 @@ func (r *Resource) GetResourceConfig() (string, error) {
 	// Marshal result to JSON
 	data, err := json.Marshal(result)
 	if err != nil {
-		return "", errors.New(fmt.Sprint("failed to marshal resource config", "error", err))
+		return "", fmt.Errorf("failed to marshal resource config: %w", err)
 	}
 
 	return string(data), nil
@@ -73,19 +72,19 @@ func (r *Resource) WriteToFile(workdir string) error {
 
 	f, err := fileutils.OpenFile(filename)
 	if err != nil {
-		return errors.New(fmt.Sprint("cant write resource file", "error", err))
+		return fmt.Errorf("cant write resource file: %w", err)
 	}
 
 	defer f.Close()
 
 	conf, err := r.GetResourceConfig()
 	if err != nil {
-		return errors.New(fmt.Sprint("failed to create resource config", "error", err))
+		return fmt.Errorf("cant write resource file: %w", err)
 	}
 
 	_, err = f.Write([]byte(conf))
 	if err != nil {
-		return errors.New(fmt.Sprint("cant write resource file", "error", err))
+		return fmt.Errorf("cant write resource file: %w", err)
 	}
 
 	return nil

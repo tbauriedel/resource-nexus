@@ -1,0 +1,91 @@
+package netutils
+
+import (
+	"crypto/tls"
+	"io"
+	"net"
+	"testing"
+	"time"
+)
+
+func TestTestTcp(t *testing.T) {
+	// build listener
+	l, err := net.Listen("tcp", "localhost:4890")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer l.Close()
+
+	// start fake listener
+	go func() { l.Accept() }()
+
+	// wait a bit for the listener to start
+	time.Sleep(500 * time.Millisecond)
+
+	// test successful connection
+	ok, err := testTcp("localhost:4890", 1*time.Second)
+	if ok != true || err != nil {
+		t.Fatal(err)
+	}
+
+	// test failed connection
+	ok, err = testTcp("localhost:4891", 1*time.Second)
+	if ok != false || err == nil {
+		t.Fatal(err)
+	}
+}
+
+func TestTestTcpTls(t *testing.T) {
+	// load tls certificate
+	cer, err := tls.LoadX509KeyPair("../../../test/testdata/config/dummy-cert.pem", "../../../test/testdata/config/dummy-key.pem")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	config := &tls.Config{Certificates: []tls.Certificate{cer}}
+
+	// build tls listener
+	l, err := tls.Listen("tcp", "localhost:4891", config)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer l.Close()
+
+	go func() {
+		conn, err := l.Accept()
+		if err != nil {
+			t.Fatal(err)
+			return
+		}
+
+		defer conn.Close()
+
+		// bidirectional echo loop to complete TLS handshake!
+		io.Copy(conn, conn)
+	}()
+
+	// wait a bit for the listener to start
+	time.Sleep(500 * time.Millisecond)
+
+	// test successful tcp connection
+	ok, err := testTcpTls("localhost:4891", 3*time.Second)
+	if !ok || err != nil {
+		t.Fatal(err)
+	}
+
+	// test failed tcp connection
+	ok, err = testTcpTls("localhost:4891", 3*time.Second)
+}
+
+func TestWaitForConnection(t *testing.T) {
+	l, err := net.Listen("tcp", "localhost:4891")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer l.Close()
+
+	err = WaitForConnection("localhost:4891", 1*time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+}
