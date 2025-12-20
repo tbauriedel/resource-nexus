@@ -2,9 +2,13 @@
 name: GoLang
 on:
     push:
+        paths:
+            - "terraform-ui-core/**"
         branches:
             - main
     pull_request:
+        paths:
+            - "terraform-ui-core/**"
 
 jobs:
     build:
