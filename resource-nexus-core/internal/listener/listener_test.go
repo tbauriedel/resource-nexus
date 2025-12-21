@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/tbauriedel/terraform-ui-core/internal/config"
-	"github.com/tbauriedel/terraform-ui-core/internal/logging"
+	"github.com/tbauriedel/resource-nexus-core/internal/config"
+	"github.com/tbauriedel/resource-nexus-core/internal/logging"
 )
 
 func TestNewListener(t *testing.T) {

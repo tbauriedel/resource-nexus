@@ -48,7 +48,7 @@ func LoadDefaults() Config {
 	return Config{
 		Logging: Logger{
 			Type:  "stdout",
-			File:  "terraform-ui-core.log",
+			File:  "resource-nexus-core.log",
 			Level: "info",
 		},
 		Database: Database{},

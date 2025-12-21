@@ -3,12 +3,12 @@ name: GoLang
 on:
     push:
         paths:
-            - "terraform-ui-core/**"
+            - "resource-nexus-core/**"
         branches:
             - main
     pull_request:
         paths:
-            - "terraform-ui-core/**"
+            - "resource-nexus-core/**"
 
 jobs:
     build:
@@ -24,8 +24,8 @@ jobs:
                 go-version: 1.25.3
             
             - name: Build
-              working-directory: ./terraform-ui-core
-              run: go build -o terraform-ui-core cmd/terraform-ui-core/main.go
+              working-directory: ./resource-nexus-core
+              run: go build -o resource-nexus-core cmd/resource-nexus-core/main.go
     test:
         needs: build
         name: Test
@@ -40,5 +40,5 @@ jobs:
                 go-version: 1.25.3
             
             - name: Test
-              working-directory: ./terraform-ui-core
+              working-directory: ./resource-nexus-core
               run: go test --cover ./...

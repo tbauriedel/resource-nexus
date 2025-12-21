@@ -1,6 +1,6 @@
 # Configuration
 
-Configuration of `terraform-ui` is written in JSON.
+Configuration of `resource-nexus-core` is written in JSON.
 
 The default configuration file is located under `config.json`.  
 The config file is provided as the command line argument `--config <path to file>`.
@@ -20,7 +20,7 @@ Inside the `logging` section, the following settings can be configured.
 {
   "logging": {
     "type": "stdout",
-    "file": "terraform-ui-core.log",
+    "file": "resource-nexus-core.log",
     "level": "info"
   }
 }
@@ -28,11 +28,11 @@ Inside the `logging` section, the following settings can be configured.
 
 **Reference**:
 
-| Field   | Type   | Required    | Default            | Description                                                             |
-|---------|--------|-------------|--------------------|-------------------------------------------------------------------------|
-| `type`  | string | Yes         | `stdout`           | Logging backend. Possible values: `stdout`, `file`.                     |
-| `file`  | string | Conditional | `terraform-ui.log` | Path to the log file. Required if `type` is `file`.                     |
-| `level` | string | Yes         | `info`             | Log verbosity level. Possible values: `debug`, `info`, `warn`, `error`. |
+| Field   | Type   | Required    | Default                   | Description                                                             |
+|---------|--------|-------------|---------------------------|-------------------------------------------------------------------------|
+| `type`  | string | Yes         | `stdout`                  | Logging backend. Possible values: `stdout`, `file`.                     |
+| `file`  | string | Conditional | `resource-nexus-core.log` | Path to the log file. Required if `type` is `file`.                     |
+| `level` | string | Yes         | `info`                    | Log verbosity level. Possible values: `debug`, `info`, `warn`, `error`. |
 
 ## Listener
 
@@ -75,6 +75,7 @@ Fields of type 'time.Duration' must be specified as strings using Go’s duratio
 - h – hours
 
 Examples:
+
 ```
 "read_timeout": "10s"
 "idle_timeout": "2m"

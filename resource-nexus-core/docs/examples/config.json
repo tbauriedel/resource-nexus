@@ -1,7 +1,7 @@
 {
   "logging": {
     "type": "file",
-    "file": "terraform-ui.log",
+    "file": "resource-nexus-core.log",
     "level": "debug"
   },
   "database": {},

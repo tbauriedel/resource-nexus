@@ -1,6 +1,6 @@
 # Idea
 
-This project aims to create a simple tool to manage virtual machines (VMs) through a web interface. The idea is to make it easy for users to create, configure, start, stop, and delete VMs without dealing directly with Terraform or the underlying infrastructure.
+This project aims to create a simple tool to manage virtual machines (VMs) and other resources through a web interface. The idea is to make it easy for users to create, configure, start, stop, and delete VMs without dealing directly with Terraform or the underlying infrastructure.
 
 # Concept
 

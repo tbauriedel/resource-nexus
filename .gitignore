@@ -1,9 +1,9 @@
 .idea
 NOTES.md
-terraform-ui-core/.idea
-terraform-ui-core/NOTES.md
-terraform-ui-core/test/data/test.log
-terraform-ui-core/test/data/test.txt
-terraform-ui-core/terraform-ui
-terraform-ui-core/test/testdata/tmp*
-terraform-ui-core/TODO.md
+resource-nexus-core/.idea
+resource-nexus-core/NOTES.md
+resource-nexus-core/test/data/test.log
+resource-nexus-core/test/data/test.txt
+resource-nexus-core/resource-nexus
+resource-nexus-core/test/testdata/tmp*
+resource-nexus-core/TODO.md

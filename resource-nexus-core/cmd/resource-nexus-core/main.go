@@ -11,11 +11,11 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/tbauriedel/terraform-ui-core/internal/config"
-	"github.com/tbauriedel/terraform-ui-core/internal/listener"
-	"github.com/tbauriedel/terraform-ui-core/internal/logging"
-	"github.com/tbauriedel/terraform-ui-core/internal/utils/fileutils"
-	"github.com/tbauriedel/terraform-ui-core/internal/utils/netutils"
+	"github.com/tbauriedel/resource-nexus-core/internal/config"
+	"github.com/tbauriedel/resource-nexus-core/internal/listener"
+	"github.com/tbauriedel/resource-nexus-core/internal/logging"
+	"github.com/tbauriedel/resource-nexus-core/internal/utils/fileutils"
+	"github.com/tbauriedel/resource-nexus-core/internal/utils/netutils"
 )
 
 var (
@@ -33,7 +33,7 @@ func init() {
 	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
 	slog.SetDefault(slog.New(handler))
 
-	slog.Info("starting terraform-ui-core")
+	slog.Info("starting resource-nexus-core")
 
 	// Add and parse flags
 	flag.StringVar(&configPath, "config", "config.json", "Config file")
@@ -123,16 +123,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	// send messages that terraform-ui-core is ready to server requests
+	// send messages that resource-nexus-core is ready to server requests
 	logger.Info(fmt.Sprintf("listener running on '%s'", conf.Listener.ListenAddr))
-	logger.Info("terraform-ui-core ready. awaiting requests")
+	logger.Info("resource-nexus-core ready. awaiting requests")
 
 	// Wait for the interrupt signal to gracefully stop the listener
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
 
-	logger.Info("start shutting down terraform-ui-core")
+	logger.Info("start shutting down resource-nexus-core")
 
 	// shutdown context. Cancel will be called after 5 seconds
 	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -143,7 +143,7 @@ func main() {
 		logger.Error(err.Error())
 	}
 
-	logger.Info("shut down terraform-ui-core")
+	logger.Info("shut down resource-nexus-core")
 
 	return
 }
