@@ -17,18 +17,43 @@ type Listener struct {
 	context     context.Context
 	multiplexer http.Handler
 	server      *http.Server
+	middlewares []Middleware
 }
 
-// NewListener retunrs a new and empty Listener
-func NewListener(cfg config.Listener, ctx context.Context, logger *logging.Logger) Listener {
-	// Create a new and empty multiplexer
-	multiplexer := http.NewServeMux()
+// NewListener returns a new and empty Listener
+//
+// The listener will be initialized with the given options
+// Added middlewares will be applied to the multiplexer. The first one added, will be called first, and the last one added, will be called last
+func NewListener(cfg config.Listener, ctx context.Context, logger *logging.Logger, opts ...Option) *Listener {
+	l := &Listener{
+		logger:  logger,
+		config:  cfg,
+		context: ctx,
+	}
 
-	return Listener{
-		logger:      logger,
-		config:      cfg,
-		context:     ctx,
-		multiplexer: multiplexer,
+	// apply options to listener
+	for _, opt := range opts {
+		opt(l)
+	}
+
+	// Build mux if none provided
+	if l.multiplexer == nil {
+		l.multiplexer = http.NewServeMux()
+	}
+
+	// apply middlewares to mux
+	l.applyMiddlewares()
+
+	return l
+}
+
+// applyMiddlewares applies the given middlewares to the multiplexer.
+// Middlewares are applied in reverse order, so the first middleware will be applied last
+//
+// Listener.multiplexer needs to be set before calling this function
+func (l *Listener) applyMiddlewares() {
+	for i := len(l.middlewares) - 1; i >= 0; i-- {
+		l.multiplexer = l.middlewares[i](l.multiplexer)
 	}
 }
 

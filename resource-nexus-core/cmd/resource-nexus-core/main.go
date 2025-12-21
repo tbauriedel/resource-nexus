@@ -98,7 +98,12 @@ func main() {
 	logger.Debug("initializing listener")
 
 	// create new listener
-	l := listener.NewListener(conf.Listener, context.Background(), logger)
+	l := listener.NewListener(
+		conf.Listener,
+		context.Background(),
+		logger,
+		listener.WithMiddleWare(listener.MiddlewareLogging(logger)),
+	)
 
 	// Start listener in the background
 	go func() {

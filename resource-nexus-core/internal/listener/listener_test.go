@@ -2,6 +2,7 @@ package listener
 
 import (
 	"context"
+	"net/http"
 	"testing"
 	"time"
 
@@ -35,6 +36,16 @@ func getListener(ctx context.Context) Listener {
 	}
 
 	return l
+}
+
+func TestApplyMiddlewares(t *testing.T) {
+	l := Listener{
+		multiplexer: http.NewServeMux(),
+		middlewares: []Middleware{MiddlewareLogging(nil)},
+	}
+
+	// assert no failure
+	l.applyMiddlewares()
 }
 
 func TestListenerInsecure(t *testing.T) {

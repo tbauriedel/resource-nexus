@@ -1,4 +1,5 @@
 .idea
+.DS_Store
 NOTES.md
 resource-nexus-core/.idea
 resource-nexus-core/NOTES.md
