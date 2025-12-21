@@ -8,7 +8,7 @@ More details can be found in the [idea description](./IDEA.md).
 
 ## Components
 
-resource-nexus consists of two components.
+`resource-nexus` consists of two components.
 
 ### resource-nexus-core
 
@@ -23,11 +23,11 @@ Not developed yet.
 
 # Development
 
-Please make sure the read the following guidelines before contributing to resource-nexus.
+Please make sure the read the following guidelines before contributing to `resource-nexus`.
 
 ## Commit messages
 
-Since this is a "mono-repository" for more than one component of resource-nexus, consistent commit names are important. This allows commits to be grouped and assigned to the corresponding component.  
+Since this is a "mono-repository" for more than one component of `resource-nexus`, consistent commit names are important. This allows commits to be grouped and assigned to the corresponding component.  
 
 Commit naming:
 - `gh-actions - ...`: Prefix for GitHub Action changes
@@ -40,7 +40,7 @@ It is important to separate changes to the backend and frontend into separate co
 
 # Disclaimer
 
-resource-nexus is an OSS project that uses and builds on Terraform. It is not affiliated with HashiCorp or Terraform.
+`resource-nexus` is an OSS project that uses and builds on Terraform. It is not affiliated with HashiCorp or Terraform.
 
 # LICENSE
 
