@@ -17,7 +17,7 @@ import (
 	"github.com/tbauriedel/resource-nexus-core/internal/utils/netutils"
 )
 
-func main() { //nolint:funlen
+func main() { //nolint:funlen,nolintlint
 	var (
 		err        error
 		conf       config.Config
@@ -110,10 +110,6 @@ func main() { //nolint:funlen
 
 	// Start listener in the background
 	go func() {
-		time.Sleep(2 * time.Second)
-
-		logger.Info(fmt.Sprintf("starting listener on '%s'", conf.Listener.ListenAddr))
-
 		err := l.Start()
 		if err != nil {
 			logger.Error(err.Error())

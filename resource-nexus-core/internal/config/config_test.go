@@ -13,8 +13,8 @@ func TestLoadFromFile(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if c.Logging.Level != "info" {
-		t.Fatalf("Actual: %s, Expected: %s", c.Logging.Level, "info")
+	if c.Logging.Level != "debug" {
+		t.Fatalf("Actual: %s, Expected: %s", c.Logging.Level, "debug")
 	}
 }
 
