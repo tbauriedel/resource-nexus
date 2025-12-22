@@ -1,4 +1,4 @@
-package terraform
+package tf
 
 import (
 	"os"
@@ -15,7 +15,7 @@ func TestGetDefaults(t *testing.T) {
 }
 
 func TestPrepare(t *testing.T) {
-	i := Instance{
+	i := TerraformInstance{
 		ExecutablePath: "../../test/testdata/files/empty-executable",
 		BaseDir:        "/tmp",
 	}

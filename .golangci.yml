@@ -13,6 +13,7 @@ linters:
     - forcetypeassert
     - perfsprint
     - revive
+    - embeddedstructfieldcheck
   settings:
     funlen:
       lines: 120
