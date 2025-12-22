@@ -2,7 +2,7 @@
   "logging": {
     "type": "stdout",
     "file": "resource-nexus-core.log",
-    "level": "info"
+    "level": "debug"
   },
   "database": {},
   "listener": {}

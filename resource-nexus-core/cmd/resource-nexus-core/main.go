@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"log/slog"
@@ -85,15 +84,8 @@ func main() { //nolint:funlen
 		logger = logging.NewLoggerStdout(conf.Logging)
 	}
 
-	// Get redacted config for initial log output
-	redacted, err := json.Marshal(conf.GetConfigRedacted())
-	if err != nil {
-		logger.Error(fmt.Sprint("failed to marshal config", "error", err))
-
-		closeAndStop(f, 1)
-	}
-
-	logger.Debug("starting with configuration", "config", redacted)
+	// Print redacted config
+	logger.Debug("starting with configuration", "config", conf.GetConfigRedacted())
 
 	//----- Listener -----//
 
