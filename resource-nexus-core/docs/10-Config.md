@@ -34,6 +34,34 @@ Inside the `logging` section, the following settings can be configured.
 | `file`  | string | Conditional | `resource-nexus-core.log` | Path to the log file. Required if `type` is `file`.                     |
 | `level` | string | Yes         | `info`                    | Log verbosity level. Possible values: `debug`, `info`, `warn`, `error`. |
 
+## Database
+
+Inside the `database` section, the following settings can be configured.
+
+```json
+{
+  "database": {
+    "address": "localhost",
+    "port": 5432,
+    "user": "resource-nexus",
+    "password": "resource-nexus",
+    "name": "resource-nexus",
+    "tlsMode": "disable"
+  }
+}
+```
+
+**Reference:**
+
+| Field      | Type   | Required | Default          | Description                                                                                                                     |
+|------------|--------|----------|------------------|---------------------------------------------------------------------------------------------------------------------------------|
+| `address`  | string | Yes      | `localhost`      | Address where the database is running (e.g. `localhost`).                                                                       |
+| `port`     | int    | Yes      | `5432`           | Database port (e.g. `5432`).                                                                                                    |
+| `user`     | string | Yes      | `-`              | Username for the connection (e.g. `super-user-0815`).                                                                           |
+| `password` | string | Yes      | `-`              | Password for the connection (e.g. `this-is-secure`).                                                                            |
+| `name`     | string | Yes      | `resource-nexus` | Database name (e.g. `resource-nexus`).                                                                                          |
+| `tlsMode`  | string | No       | `verify-full`    | TLS mode as described [here](https://www.postgresql.org/docs/current/libpq-ssl.html#LIBPQ-SSL-PROTECTION) (e.g. `verify-full`). |
+
 ## Listener
 
 Inside the `listener` section, the following settings can be configured.

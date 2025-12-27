@@ -4,6 +4,13 @@
     "file": "resource-nexus-core.log",
     "level": "debug"
   },
-  "database": {},
+  "database": {
+    "address": "localhost",
+    "port": 5432,
+    "user": "resource-nexus",
+    "password": "resource-nexus",
+    "name": "resource-nexus",
+    "tlsMode": "disable"
+  },
   "listener": {}
 }

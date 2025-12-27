@@ -3,7 +3,14 @@
     "type": "stdout",
     "level": "debug"
   },
-  "database": {},
+  "database": {
+    "address": "localhost",
+    "port": 5432,
+    "user": "resource-nexus",
+    "password": "resource-nexus",
+    "name": "resource-nexus",
+    "tlsMode": "disable"
+  },
   "listener": {
     "tlsEnabled": true,
     "tlsCertFile": "test/testdata/config/dummy-cert.pem",
