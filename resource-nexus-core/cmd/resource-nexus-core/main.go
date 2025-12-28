@@ -10,14 +10,15 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/tbauriedel/resource-nexus-core/internal/common/fileutils"
+	"github.com/tbauriedel/resource-nexus-core/internal/common/netutils"
 	"github.com/tbauriedel/resource-nexus-core/internal/config"
+	"github.com/tbauriedel/resource-nexus-core/internal/database"
 	"github.com/tbauriedel/resource-nexus-core/internal/listener"
 	"github.com/tbauriedel/resource-nexus-core/internal/logging"
-	"github.com/tbauriedel/resource-nexus-core/internal/utils/fileutils"
-	"github.com/tbauriedel/resource-nexus-core/internal/utils/netutils"
 )
 
-func main() { //nolint:funlen,nolintlint
+func main() { //nolint:funlen,nolintlint,cyclop
 	var (
 		err        error
 		conf       config.Config
@@ -52,7 +53,7 @@ func main() { //nolint:funlen,nolintlint
 		conf, err = config.LoadFromJSONFile(configPath)
 		if err != nil {
 			slog.Error(err.Error())
-			closeAndStop(nil, 1)
+			exit(nil, 1)
 		}
 	}
 
@@ -68,7 +69,7 @@ func main() { //nolint:funlen,nolintlint
 		f, err = fileutils.OpenFile(conf.Logging.File)
 		if err != nil {
 			slog.Error(err.Error())
-			closeAndStop(f, 1)
+			exit(f, 1)
 		}
 
 		defer func(f *os.File) {
@@ -86,6 +87,40 @@ func main() { //nolint:funlen,nolintlint
 
 	// Print redacted config
 	logger.Debug("starting with configuration", "config", conf.GetConfigRedacted())
+
+	// print shut down the message after all defer statements have been executed.
+	defer func() {
+		logger.Info("shut down resource-nexus-core")
+	}()
+
+	//----- Database -----//
+
+	logger.Info("initializing database connection")
+
+	var db database.Database
+
+	// create the database connection
+	db, err = database.NewDatabase(conf.Database, logger)
+	if err != nil {
+		logger.Error(err.Error())
+		exit(f, 1)
+	}
+
+	defer func() {
+		err = db.Close()
+		if err != nil {
+			logger.Error(err.Error())
+		}
+	}()
+
+	// test database connection
+	err = db.TestConnection()
+	if err != nil {
+		logger.Error(err.Error())
+		exit(f, 1)
+	}
+
+	logger.Info("database connection established and tested successfully")
 
 	//----- Listener -----//
 
@@ -106,16 +141,21 @@ func main() { //nolint:funlen,nolintlint
 			conf.Listener.IpBasedRateLimitBucketSize,
 			logger,
 		)),
+		listener.WithMiddleWare(listener.MiddlewareAuthentication(db, logger)),
 	)
+
+	// register handler functions
 
 	// Start listener in the background
 	go func() {
 		err := l.Start()
 		if err != nil {
 			logger.Error(err.Error())
-			closeAndStop(f, 1)
+			exit(f, 1)
 		}
 	}()
+
+	// ----- Shutdown ----- //
 
 	// Register interrupt signal handler
 	shutdownSignal := make(chan os.Signal, 1)
@@ -125,7 +165,7 @@ func main() { //nolint:funlen,nolintlint
 	err = netutils.WaitForConnection(conf.Listener.ListenAddr, conf.Listener.TLSSkipVerify, 10*time.Second)
 	if err != nil {
 		logger.Error(fmt.Sprintf("waited 10 seconds for listener to start without success. shutting down. %s", err.Error()))
-		closeAndStop(f, 1)
+		exit(f, 1)
 	}
 
 	// send messages that resource-nexus-core is ready to server requests
@@ -148,11 +188,11 @@ func main() { //nolint:funlen,nolintlint
 		logger.Error(err.Error())
 	}
 
-	logger.Info("shut down resource-nexus-core")
+	logger.Debug("listener stopped")
 }
 
-// closeAndStop closes the logfile and exits the application with the given code.
-func closeAndStop(logfile *os.File, code int) { //nolint:unparam
+// exit closes the logfile and exits the application with the given code.
+func exit(logfile *os.File, code int) { //nolint:unparam
 	if logfile != nil {
 		_ = logfile.Close()
 	}

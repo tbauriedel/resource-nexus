@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/tbauriedel/resource-nexus-core/internal/authentication"
+	"github.com/tbauriedel/resource-nexus-core/internal/database"
 	"github.com/tbauriedel/resource-nexus-core/internal/logging"
 	"golang.org/x/time/rate"
 )
@@ -35,7 +37,30 @@ func WithMiddleWare(m Middleware) Option {
 func MiddlewareLogging(logger *logging.Logger) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			logger.Info(fmt.Sprintf("new request: [%s] %s %s %s", r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent()))
+			user, _, _ := r.BasicAuth()
+			logger.Info(fmt.Sprintf(
+				"new request from user '%s' [%s] %s %s %s",
+				user, r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent()))
+			next.ServeHTTP(w, r)
+		})
+	}
+}
+
+func MiddlewareAuthentication(db database.Database, logger *logging.Logger) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			username, _, _ := r.BasicAuth()
+
+			_, err := authentication.LoadUser(username, db, r.Context())
+			if err != nil {
+				logger.Warn(fmt.Sprintf("authentication failed: %s", err.Error()))
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				
+				return
+			}
+
+			// check if user has permission for requested resource!
+
 			next.ServeHTTP(w, r)
 		})
 	}
