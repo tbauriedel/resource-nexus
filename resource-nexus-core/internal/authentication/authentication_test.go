@@ -67,6 +67,22 @@ func TestLoadUser(t *testing.T) {
 	}
 }
 
+func TestAuthenticate(t *testing.T) {
+	// pass: foobar
+	user := User{
+		ID:           1,
+		Name:         "foobar",
+		PasswordHash: "$argon2id$v=19$m=65536,t=3,p=1$+kn21LcRetAkE7zObeS3xA$FzdfjLWlAiJbHLE+Rjm2hBMUmMb3TdmWQ7AMTtryYfk",
+		Permissions:  []string{},
+		IsAdmin:      false,
+	}
+
+	err := user.Authenticate("foobar")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestHasPermission(t *testing.T) {
 	user := User{
 		ID:          1,

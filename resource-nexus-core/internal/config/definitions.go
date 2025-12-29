@@ -48,4 +48,5 @@ type HashingParams struct {
 	ThreadsCount uint8  `json:"threadsCount"` // Number of threads used for hashing
 	KeyLength    uint32 `json:"keyLength"`    // Length of the generated key in bytes
 	SaltLength   uint32 `json:"saltLength"`   // Length of the generated salt in bytes
+	Salt         []byte `json:"salt"`         // Salt that is used for hashing. Is generated randomly if not provided
 }

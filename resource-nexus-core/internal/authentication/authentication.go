@@ -9,11 +9,12 @@ import (
 )
 
 type User struct {
-	ID           int
-	Name         string
-	PasswordHash string
-	Permissions  []string
-	IsAdmin      bool
+	ID              int
+	Name            string
+	PasswordHash    string
+	Permissions     []string
+	IsAdmin         bool
+	IsAuthenticated bool
 }
 
 // LoadUser loads the user from the database.
@@ -35,9 +36,10 @@ func LoadUser(username string, db database.Database, ctx context.Context) (*User
 	}
 
 	user := &User{
-		ID:           res.ID,
-		Name:         res.Name,
-		PasswordHash: res.PasswordHash,
+		ID:              res.ID,
+		Name:            res.Name,
+		PasswordHash:    res.PasswordHash,
+		IsAuthenticated: false,
 	}
 
 	// Load Permissions from database
@@ -51,6 +53,27 @@ func LoadUser(username string, db database.Database, ctx context.Context) (*User
 	}
 
 	return user, nil
+}
+
+// Authenticate checks if the given password matches the stored hash.
+//
+// Extracts the parameters from the hash and compares the password with the encoded hash.
+// If the password matches, true is returned, otherwise false.
+func (user *User) Authenticate(password string) error {
+	params, err := ExportParamsFromHash(user.PasswordHash)
+	if err != nil {
+		return fmt.Errorf("cant check if user is authenticated: %w", err)
+	}
+
+	encoded := HashPasswordString(password, params)
+
+	if encoded == user.PasswordHash {
+		user.IsAuthenticated = true
+
+		return nil
+	}
+
+	return fmt.Errorf("password does not match")
 }
 
 // HasPermission checks if the user has the permission for the given resource and action.

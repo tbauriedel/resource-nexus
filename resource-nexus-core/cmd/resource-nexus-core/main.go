@@ -106,6 +106,7 @@ func main() { //nolint:funlen,nolintlint,cyclop
 		exit(f, 1)
 	}
 
+	// close database connection on exit of main
 	defer func() {
 		err = db.Close()
 		if err != nil {
@@ -127,9 +128,16 @@ func main() { //nolint:funlen,nolintlint,cyclop
 	logger.Debug("initializing listener")
 
 	// create new listener
+	// several middlewares are added to the listener. (loaded from top to bottom)
+	// - MiddleWareRecovery: recovers from panics and logs the error
+	// - MiddleWareLogging: logs the request and response
+	// - MiddleWareGlobalRateLimiter: limits the number of requests per second globally
+	// - MiddleWareIpRateLimiter: limits the number of requests per second per ip
+	// - MiddlewareAuthentication: authenticates requests
 	l := listener.NewListener(
 		conf.Listener,
 		logger,
+		listener.WithMiddleWare(listener.MiddlewareRecovery(logger)),
 		listener.WithMiddleWare(listener.MiddlewareLogging(logger)),
 		listener.WithMiddleWare(listener.MiddlewareGlobalRateLimiter(
 			conf.Listener.GlobalRateLimitGeneration,
@@ -144,8 +152,6 @@ func main() { //nolint:funlen,nolintlint,cyclop
 		listener.WithMiddleWare(listener.MiddlewareAuthentication(db, logger)),
 	)
 
-	// register handler functions
-
 	// Start listener in the background
 	go func() {
 		err := l.Start()
@@ -155,9 +161,7 @@ func main() { //nolint:funlen,nolintlint,cyclop
 		}
 	}()
 
-	// ----- Shutdown ----- //
-
-	// Register interrupt signal handler
+	// Register interrupt signal handler for the listener
 	shutdownSignal := make(chan os.Signal, 1)
 	signal.Notify(shutdownSignal, syscall.SIGINT, syscall.SIGTERM)
 
@@ -171,6 +175,8 @@ func main() { //nolint:funlen,nolintlint,cyclop
 	// send messages that resource-nexus-core is ready to server requests
 	logger.Info(fmt.Sprintf("listener running on '%s'", conf.Listener.ListenAddr))
 	logger.Info("resource-nexus-core ready. awaiting requests")
+
+	// ----- Shutdown ----- //
 
 	// Wait for the interrupt signal to gracefully stop the listener
 	sigChan := make(chan os.Signal, 1)

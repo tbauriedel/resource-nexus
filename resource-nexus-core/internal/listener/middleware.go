@@ -33,6 +33,22 @@ func WithMiddleWare(m Middleware) Option {
 	}
 }
 
+// MiddlewareRecovery wraps the http.Handler with recovery middleware.
+//
+// If a panic occurs during the request processing, server will log the panic and return a 500 Internal Server Error.
+func MiddlewareRecovery(logger *logging.Logger) Middleware {
+	return func(handler http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			defer func() {
+				if err := recover(); err != nil {
+					logger.Error(fmt.Sprintf("panic during request recovered: %v", err))
+					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+				}
+			}()
+		})
+	}
+}
+
 // MiddlewareLogging wraps the http.Handler with logging middleware.
 func MiddlewareLogging(logger *logging.Logger) Middleware {
 	return func(next http.Handler) http.Handler {
@@ -41,26 +57,55 @@ func MiddlewareLogging(logger *logging.Logger) Middleware {
 			logger.Info(fmt.Sprintf(
 				"new request from user '%s' [%s] %s %s %s",
 				user, r.Method, r.URL.Path, r.RemoteAddr, r.UserAgent()))
+
+			// hand over to the next handler
 			next.ServeHTTP(w, r)
 		})
 	}
 }
 
+// MiddlewareAuthentication wraps the http.Handler with authentication middleware.
+//
+// The middleware expects a valid username and password in the BasicAuth header of the request.
+// The provided password is validated against the stored hash in the database.
+// If the authentication fails, the request is rejected with a 401 Unauthorized status code.
+// The http response, no proper error message is returned to prevent leaking information about the existence of users.
+// Details about the failed authentication are logged inside the server log.
 func MiddlewareAuthentication(db database.Database, logger *logging.Logger) Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			username, _, _ := r.BasicAuth()
+			username, password, _ := r.BasicAuth()
 
-			_, err := authentication.LoadUser(username, db, r.Context())
-			if err != nil {
-				logger.Warn(fmt.Sprintf("authentication failed: %s", err.Error()))
+			// if no basic auth header is provided, reject the request immediately
+			if username == "" || password == "" {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-				
+				logger.Warn("authentication failed: no username or password provided")
+
 				return
 			}
 
-			// check if user has permission for requested resource!
+			// load user from database by given name.
+			// unauthorized if no user can be found
+			storedUser, err := authentication.LoadUser(username, db, r.Context())
+			if err != nil {
+				logger.Warn(fmt.Sprintf("authentication failed: %s", err.Error()))
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 
+				return
+			}
+
+			// validate the provided password against the stored hash
+			err = storedUser.Authenticate(password)
+			if err != nil {
+				logger.Warn(fmt.Sprintf("authentication for user '%s' failed: %s", username, err.Error()))
+				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+
+				return
+			}
+
+			logger.Info(fmt.Sprintf("authentication for user '%s' successful", username))
+
+			// hand over to the next handler
 			next.ServeHTTP(w, r)
 		})
 	}
@@ -86,6 +131,7 @@ func MiddlewareGlobalRateLimiter(r rate.Limit, b int, logger *logging.Logger) Mi
 				return
 			}
 
+			// hand over to the next handler
 			next.ServeHTTP(w, r)
 		})
 	}
@@ -127,6 +173,7 @@ func MiddleWareIpRateLimiter(r rate.Limit, b int, logger *logging.Logger) Middle
 				return
 			}
 
+			// hand over to the next handler
 			next.ServeHTTP(w, r)
 		})
 	}
