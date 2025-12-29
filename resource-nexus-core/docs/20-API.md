@@ -5,6 +5,27 @@ Every workload done by the `resource-nexus-core` is triggered via this.
 
 ## General Information
 
+### Authentication
+
+The REST API is secured via basic authentication.  
+To handle the authentication and validate credentials, users and encoded password hashes are stored inside the database.
+The used algorithm to hash passwords is `argon2id`. Plaintext passwords are never stored or printed!
+
+An authentication process works like this:
+
+- User sends username and password to the REST API as part of the header (base64 encoded)
+- Check if the user exists
+- Take the provided password and hash it with the stored hash algorithm
+- Compare the hashed password with the stored hash
+
+If any of these steps fails, the authentication fails, and the request is rejected with a `401 Unauthorized`. The user
+itself will only get an http error and no proper error message. More details why the authentication failed can be found
+in the logs.
+
+#### Permissions
+
+To be implemented and documented!
+
 ### Logging
 
 Each request is logged by default. Based on the type of your configured logging instance, messages are saved to stdout
@@ -27,12 +48,4 @@ the [configuration reference](./10-Config.md) for more information.
 First, the global rate limiter is applied. When the global limit is reached, it will reject the request.  
 If the global limit is not reached, the ip-based rate limiter is applied.
 
-Global rate limiter defaults:
-
-- Bucket size: 25 tokens
-- Token generation interval: 5 per second
-
-Ip-based rate limiter defaults:
-
-- Bucket size: 10 tokens
-- Token generation interval: 2 per second
+The default values for the rate limiters can be found inside the [configuration reference](./10-Config.md).
