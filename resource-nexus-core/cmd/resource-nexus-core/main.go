@@ -139,6 +139,7 @@ func main() { //nolint:funlen,nolintlint,cyclop
 		logger,
 		listener.WithMiddleWare(listener.MiddlewareRecovery(logger)),
 		listener.WithMiddleWare(listener.MiddlewareLogging(logger)),
+		listener.WithMiddleWare(listener.MiddlewareAuthentication(db, logger)),
 		listener.WithMiddleWare(listener.MiddlewareGlobalRateLimiter(
 			conf.Listener.GlobalRateLimitGeneration,
 			conf.Listener.GlobalRateLimitBucketSize,
@@ -149,7 +150,6 @@ func main() { //nolint:funlen,nolintlint,cyclop
 			conf.Listener.IpBasedRateLimitBucketSize,
 			logger,
 		)),
-		listener.WithMiddleWare(listener.MiddlewareAuthentication(db, logger)),
 	)
 
 	// Start listener in the background

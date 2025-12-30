@@ -37,7 +37,7 @@ func WithMiddleWare(m Middleware) Option {
 //
 // If a panic occurs during the request processing, server will log the panic and return a 500 Internal Server Error.
 func MiddlewareRecovery(logger *logging.Logger) Middleware {
-	return func(handler http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			defer func() {
 				if err := recover(); err != nil {
@@ -45,6 +45,8 @@ func MiddlewareRecovery(logger *logging.Logger) Middleware {
 					http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 				}
 			}()
+
+			next.ServeHTTP(w, r)
 		})
 	}
 }
