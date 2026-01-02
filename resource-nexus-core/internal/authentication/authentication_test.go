@@ -25,7 +25,7 @@ func TestLoadUser(t *testing.T) {
 	// user permission rows
 	query := fmt.Sprintf(`
 		SELECT DISTINCT 
-		    p.resource, p.action
+		    p.category, p.resource, p.action
 		FROM %s u
 		JOIN %s ug ON ug.user_id = u.id
 		JOIN %s gp ON gp.group_id = ug.group_id
@@ -37,9 +37,9 @@ func TestLoadUser(t *testing.T) {
 		"permissions",
 	)
 
-	rows = sqlmock.NewRows([]string{"resource", "action"}).
-		AddRow("user", "get").
-		AddRow("user", "create")
+	rows = sqlmock.NewRows([]string{"category", "resource", "action"}).
+		AddRow("security", "user", "get").
+		AddRow("security", "user", "create")
 
 	mock.ExpectQuery(query).
 		WithArgs("dummy").
@@ -58,7 +58,7 @@ func TestLoadUser(t *testing.T) {
 		ID:           1,
 		Name:         "dummy",
 		PasswordHash: "foobar",
-		Permissions:  []string{"get:user", "create:user"},
+		Permissions:  []string{"security:get:user", "security:create:user"},
 		IsAdmin:      false,
 	}
 
@@ -87,15 +87,15 @@ func TestHasPermission(t *testing.T) {
 	user := User{
 		ID:          1,
 		Name:        "dummy",
-		Permissions: []string{"get:user", "create:user"},
+		Permissions: []string{"security:get:user", "security:create:user"},
 		IsAdmin:     false,
 	}
 
-	if user.HasPermission("get:user") != true {
+	if user.HasPermission("security:get:user") != true {
 		t.Fatal("should have permission")
 	}
 
-	if user.HasPermission("create:cars") != false {
+	if user.HasPermission("dummy:create:cars") != false {
 		t.Fatal("should not have permission")
 	}
 
@@ -106,7 +106,7 @@ func TestHasPermission(t *testing.T) {
 		IsAdmin:     true,
 	}
 
-	if admin.HasPermission("get:user") != true {
+	if admin.HasPermission("security:get:user") != true {
 		t.Fatal("should have permission")
 	}
 }

@@ -102,7 +102,7 @@ func (db *SqlDatabase) GetUserPermissions(username string, ctx context.Context) 
 	// SQL statement to query all permissions for a user
 	query := fmt.Sprintf(`
 		SELECT DISTINCT 
-		    p.resource, p.action
+		    p.category, p.resource, p.action
 		FROM %s u
 		JOIN %s ug ON ug.user_id = u.id
 		JOIN %s gp ON gp.group_id = ug.group_id
@@ -147,7 +147,7 @@ func (db *SqlDatabase) GetUserPermissions(username string, ctx context.Context) 
 	for rows.Next() {
 		var permission database.Permission
 
-		err = rows.Scan(&permission.Resource, &permission.Action)
+		err = rows.Scan(&permission.Category, &permission.Resource, &permission.Action)
 		if err != nil {
 			return nil, fmt.Errorf("failed to scan row %w", err)
 		}

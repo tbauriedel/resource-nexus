@@ -108,7 +108,7 @@ func TestGetUserPermissions(t *testing.T) {
 
 	query := fmt.Sprintf(`
 		SELECT DISTINCT 
-		    p.resource, p.action
+		    p.category, p.resource, p.action
 		FROM %s u
 		JOIN %s ug ON ug.user_id = u.id
 		JOIN %s gp ON gp.group_id = ug.group_id
@@ -120,9 +120,9 @@ func TestGetUserPermissions(t *testing.T) {
 		TableNamePermissions,
 	)
 
-	rows := sqlmock.NewRows([]string{"resource", "action"}).
-		AddRow("user", "get").
-		AddRow("user", "create")
+	rows := sqlmock.NewRows([]string{"category", "resource", "action"}).
+		AddRow("security", "user", "get").
+		AddRow("security", "user", "create")
 
 	mock.ExpectQuery(query).
 		WithArgs("dummy").
@@ -141,8 +141,8 @@ func TestGetUserPermissions(t *testing.T) {
 	}
 
 	if !reflect.DeepEqual(p, []database.Permission{
-		{Resource: "user", Action: "get"},
-		{Resource: "user", Action: "create"}}) {
+		{Category: "security", Resource: "user", Action: "get"},
+		{Category: "security", Resource: "user", Action: "create"}}) {
 		t.Fatal("wrong permissions returned")
 	}
 }

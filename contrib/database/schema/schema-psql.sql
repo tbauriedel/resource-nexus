@@ -12,15 +12,16 @@ CREATE TABLE groups (
 
 CREATE TABLE permissions (
     id SERIAL PRIMARY KEY,
+    category VARCHAR(100) NOT NULL,
     action VARCHAR(50) NOT NULL,
     resource VARCHAR(100) NOT NULL,
     UNIQUE(resource, action)
 );
 
-INSERT INTO permissions (id, resource, action)
+INSERT INTO permissions (id, category, resource, action)
 VALUES
-    (1, 'user', 'get'),
-    (2, 'user', 'create');
+    (1, 'security', 'user', 'get'),
+    (2, 'security', 'user', 'create');
 
 CREATE TABLE user_groups (
     user_id  INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,

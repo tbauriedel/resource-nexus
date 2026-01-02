@@ -129,28 +129,25 @@ func main() { //nolint:funlen,nolintlint,cyclop
 
 	// create new listener
 	// several middlewares are added to the listener. (loaded from top to bottom)
-	// - MiddleWareRecovery: recovers from panics and logs the error
-	// - MiddleWareLogging: logs the request and response
-	// - MiddleWareGlobalRateLimiter: limits the number of requests per second globally
-	// - MiddleWareIpRateLimiter: limits the number of requests per second per ip
-	// - MiddlewareAuthentication: authenticates requests
 	l := listener.NewListener(
 		conf.Listener,
 		logger,
-		listener.WithMiddleWare(listener.MiddlewareRecovery(logger)),
-		listener.WithMiddleWare(listener.MiddlewareLogging(logger)),
-		listener.WithMiddleWare(listener.MiddlewareAuthentication(db, logger)),
-		listener.WithMiddleWare(listener.MiddlewareGlobalRateLimiter(
+		listener.WithMiddleWare(listener.MiddlewareRecovery(logger)), // fetch panics and recover
+		listener.WithMiddleWare(listener.MiddlewareLogging(logger)),  // log all requests
+		listener.WithMiddleWare(listener.MiddlewareGlobalRateLimiter( // rate limiting. global
 			conf.Listener.GlobalRateLimitGeneration,
 			conf.Listener.GlobalRateLimitBucketSize,
 			logger,
 		)),
-		listener.WithMiddleWare(listener.MiddleWareIpRateLimiter(
+		listener.WithMiddleWare(listener.MiddleWareIpRateLimiter( // rate limiting. ip-based
 			conf.Listener.IpBasedRateLimitGeneration,
 			conf.Listener.IpBasedRateLimitBucketSize,
 			logger,
 		)),
+		listener.WithMiddleWare(listener.MiddlewareAuthentication(db, logger)), // validate user
 	)
+
+	// Add listener routes here. Using l.AddRoute()
 
 	// Start listener in the background
 	go func() {

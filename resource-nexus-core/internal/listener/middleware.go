@@ -1,9 +1,11 @@
 package listener
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
+	"slices"
 	"sync"
 
 	"github.com/tbauriedel/resource-nexus-core/internal/authentication"
@@ -25,6 +27,12 @@ type userRateLimiter struct {
 	rateLimitGeneration rate.Limit
 	rateLimitBucketSize int
 }
+
+type contextKey string
+
+const (
+	storedUserKey contextKey = "storedUser"
+)
 
 // WithMiddleWare adds middleware to the listener.
 func WithMiddleWare(m Middleware) Option {
@@ -107,7 +115,46 @@ func MiddlewareAuthentication(db database.Database, logger *logging.Logger) Midd
 
 			logger.Info(fmt.Sprintf("authentication for user '%s' successful", username))
 
+			// store the user inside the request context
+			ctx := context.WithValue(r.Context(), storedUserKey, storedUser)
+
 			// hand over to the next handler
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	}
+}
+
+// MiddlewareAuthorization is intended to create secured handle functions of the listener.
+func MiddlewareAuthorization(logger *logging.Logger) Middleware {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// get stored user from request context. Is saved inside the MiddlewareAuthentication()
+			storedUser, ok := r.Context().Value(storedUserKey).(*authentication.User)
+			if !ok {
+				logger.Warn("authorization failed: no stored user found in request context")
+				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+
+				return
+			}
+
+			// load the permission for the requested path
+			perm, ok := authentication.GetPermissionForPath(r.URL.Path)
+			if !ok {
+				logger.Warn(fmt.Sprintf("authorization failed: no permission found for path '%s'", r.URL.Path))
+				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+
+				return
+			}
+
+			// check if the authenticated user has the needed permission. admins are power users!
+			// Validates if tge loaded permission from the PermissionMap is contained in the stored user permissions.
+			if !slices.Contains(storedUser.Permissions, perm) && !storedUser.IsAdmin {
+				logger.Warn(fmt.Sprintf("authorization failed: permission '%s' not allowed", perm))
+				http.Error(w, http.StatusText(http.StatusForbidden), http.StatusForbidden)
+
+				return
+			}
+
 			next.ServeHTTP(w, r)
 		})
 	}

@@ -14,7 +14,8 @@ import (
 type Listener struct {
 	logger      *logging.Logger
 	config      config.Listener
-	multiplexer http.Handler
+	multiplexer *http.ServeMux
+	handler     http.Handler
 	server      *http.Server
 	middlewares []Middleware
 }
@@ -26,16 +27,15 @@ type Listener struct {
 // The first one added, will be called first, and the last one added, will be called last.
 func NewListener(cfg config.Listener, logger *logging.Logger, opts ...Option) *Listener {
 	l := &Listener{
-		logger: logger,
-		config: cfg,
+		logger:      logger,
+		config:      cfg,
+		multiplexer: http.NewServeMux(),
 	}
 
 	// apply options to listener
 	for _, opt := range opts {
 		opt(l)
 	}
-
-	l.multiplexer = http.NewServeMux()
 
 	// apply middlewares to mux
 	l.applyMiddlewares()
@@ -51,7 +51,7 @@ func NewListener(cfg config.Listener, logger *logging.Logger, opts ...Option) *L
 func (l *Listener) Start() error {
 	server := &http.Server{
 		Addr:        l.config.ListenAddr,
-		Handler:     l.multiplexer,
+		Handler:     l.handler,
 		ReadTimeout: l.config.ReadTimeout,
 		IdleTimeout: l.config.IdleTimeout,
 	}
@@ -119,9 +119,12 @@ func (l *Listener) Shutdown(ctx context.Context) error {
 //
 // Listener.multiplexer needs to be set before calling this function.
 func (l *Listener) applyMiddlewares() {
+	h := http.Handler(l.multiplexer)
 	for i := len(l.middlewares) - 1; i >= 0; i-- {
-		l.multiplexer = l.middlewares[i](l.multiplexer)
+		h = l.middlewares[i](h)
 	}
+
+	l.handler = h
 }
 
 // run starts the server without TLS encryption in the foreground.

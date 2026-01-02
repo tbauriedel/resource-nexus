@@ -9,6 +9,7 @@ type User struct {
 
 type Permission struct {
 	ID       int
+	Category string
 	Resource string
 	Action   string
 }

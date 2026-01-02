@@ -49,7 +49,7 @@ func LoadUser(username string, db database.Database, ctx context.Context) (*User
 	}
 
 	for _, perm := range perms {
-		user.Permissions = append(user.Permissions, BuildPermissionString(perm.Action, perm.Resource))
+		user.Permissions = append(user.Permissions, BuildPermissionString(perm.Category, perm.Action, perm.Resource))
 	}
 
 	return user, nil

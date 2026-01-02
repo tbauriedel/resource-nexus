@@ -1,10 +1,22 @@
 package authentication
 
-type Permission struct {
-	Action   string
-	Resource string
+// GetPermissionForPath returns the permission for the given path / url.
+func GetPermissionForPath(url string) (string, bool) {
+	var permissionsMap = map[string]string{
+		"": "",
+	}
+
+	perm, ok := permissionsMap[url]
+	if !ok {
+		return "", false
+	}
+
+	return perm, true
 }
 
-func BuildPermissionString(action, resource string) string {
-	return action + ":" + resource
+// BuildPermissionString builds a permission string from category, action and resource.
+//
+// Format: category:action:resource.
+func BuildPermissionString(category, action, resource string) string {
+	return category + ":" + action + ":" + resource
 }
