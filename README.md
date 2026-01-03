@@ -1,3 +1,7 @@
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+![Go Version](https://img.shields.io/badge/go-1.25.3+-blue)
+![GoLang CI](https://github.com/tbauriedel/resource-nexus/actions/workflows/go.yml/badge.svg)
+
 # resource-nexus
 
 > `resource-nexus` is under development. A first release candidate will be released "soon".
