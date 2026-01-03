@@ -23,7 +23,9 @@ Not developed yet.
 
 # Development
 
-Please make sure the read the following guidelines before contributing to `resource-nexus`.
+Please make sure to read the following guidelines before contributing to `resource-nexus`.
+
+Contributing "rules" can be found [here](./CONTRIBUTING.md).
 
 ## Commit messages
 

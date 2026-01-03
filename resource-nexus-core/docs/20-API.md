@@ -3,8 +3,6 @@
 One of the main parts of the `resource-nexus-core` is the powerful REST API.  
 Every workload done by the `resource-nexus-core` is triggered via this.
 
-## General Information
-
 ### Authentication
 
 The REST API is secured via basic authentication.  
@@ -24,7 +22,19 @@ in the logs.
 
 #### Permissions
 
-To be implemented and documented!
+Permissions are granted with using the implement RBAC. Permissions are never granted to the user directly but to a
+group.  
+A user can be part of multiple groups. All permissions granted by the groups are merged into one set of permissions.
+
+Permissions are structured like this: `category:resource:action`. For example: `security:user:get`
+
+Available permissions are:
+
+- ...
+- ...
+
+Admin users are flagged inside the database and have **all permissions**. Here, the permission is set on the user itself
+and no group is used.
 
 ### Logging
 
