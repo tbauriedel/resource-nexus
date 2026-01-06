@@ -9,10 +9,11 @@ import (
 
 // Config represents the configuration of resource-nexus-core.
 type Config struct {
-	Logging  Logger   `json:"logging"`
-	Database Database `json:"database"`
-	Listener Listener `json:"listener"`
-	Security Security `json:"security"`
+	Logging     Logger      `json:"logging"`
+	Database    Database    `json:"database"`
+	Listener    Listener    `json:"listener"`
+	Security    Security    `json:"security"`
+	Provisioner Provisioner `json:"provisioner"`
 }
 
 var (
@@ -53,6 +54,9 @@ func LoadDefaults() Config {
 				KeyLength:    32,
 				SaltLength:   16,
 			},
+		},
+		Provisioner: Provisioner{
+			AllowedExecutables: "/usr/local/bin/terraform",
 		},
 	}
 }

@@ -147,3 +147,22 @@ used. To verify existing passwords, the settings from the stored encoded hash ar
 | `passwordHashing.threadsCount` | uint8  | No       | `1`     | Number of threads used for the hash calculation.  |
 | `passwordHashing.keyLength`    | uint32 | No       | `32`    | Length of the generated key in bytes.             |
 | `passwordHashing.saltLength`   | uint32 | No       | `16`    | Length of the generated salt in bytes.            |
+
+## Provisioner
+
+Inside the `provisioner` section, the following settings can be configured.
+
+```json
+{
+  "provisioner": {
+    "allowedExecutables": "/usr/local/bin/terraform"
+  }
+}
+
+```
+
+**Reference**:
+
+| Field                | Type   | Required    | Default                    | Description                                  |
+|----------------------|--------|-------------|----------------------------|----------------------------------------------|
+| `allowedExecutables` | string | Conditional | `/usr/local/bin/terraform` | Comma separated list of allowed executables. |

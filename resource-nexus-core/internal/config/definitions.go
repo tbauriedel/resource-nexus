@@ -50,3 +50,7 @@ type HashingParams struct {
 	SaltLength   uint32 `json:"saltLength"`   // Length of the generated salt in bytes
 	Salt         []byte `json:"salt"`         // Salt that is used for hashing. Is generated randomly if not provided
 }
+
+type Provisioner struct {
+	AllowedExecutables string `json:"allowedExecutables"` // comma separated list of allowed executables
+}
